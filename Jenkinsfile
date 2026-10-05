@@ -65,13 +65,13 @@ pipeline {
     
     stage('Docker login') {
       steps {
-        withCredentials([usernamePasswrd(
+        withCredentials([usernamePassword(
                                         credentialsId: 'dockerhub-credentials',
                                         usernameVariable: 'DOCKER_USERNAME',
                                         passwordVariable: 'DOCKER_PASSWORD' )
                ]) {
                    sh '''
-                        echo "$DOCKER_PASSWORD" | docker login -U "$DOCKER_USER" --passwrd-stdin
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                       '''
                    }
            }
@@ -82,7 +82,7 @@ pipeline {
              docker push ${PRODUCT_IMAGE}:${IMAGE_TAG} 
              docker push ${ORDER_IMAGE}:${IMAGE_TAG}               
              docker push ${USER_IMAGE}:${IMAGE_TAG}
-             docker push ${USER_IMAGE}:${IMAGE_TAG}
+             docker push ${GATEWAY_IMAGE}:${IMAGE_TAG}
             '''
             }
          }
@@ -108,7 +108,7 @@ pipeline {
            }
         }
 
-    stage ('Health Verifiction') {
+    stage ('Health Verification') {
       steps {
         sh ''' 
              echo "Checking Product service.."             
@@ -128,7 +128,7 @@ pipeline {
            }
         }
  
-    stage('API Verfication') {
+    stage('API Verification') {
       steps {
         sh '''
              echo "Testing Product API..."
