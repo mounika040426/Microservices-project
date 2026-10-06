@@ -91,7 +91,8 @@ pipeline {
     stage ('Deploy with Docker Compose') {
       steps {
         sh '''
-             docker compose down
+             docker compose down || true
+             docker compose -p microservices-project down || true 
              docker compose up -d --build
            '''
             }
