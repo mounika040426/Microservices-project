@@ -88,11 +88,25 @@ pipeline {
             }
          }
  
-    stage ('Deploy with Docker Compose') {
+    stage('Docker cleanup') {
       steps {
         sh '''
-             docker compose down || true
-             docker compose -p microservices-project down || true 
+             echo "Cleaning previous microservices deployment"
+
+             docker compose down --remove-orphans || true
+       
+             docker rm -f microservices-project-gateway-service-1 microservices-project-product-service-1 microservices-project-order-service-1 microservices-project-user-service-1
+
+             docker network rm microservices-network || true
+
+             echo "Docker cleanup completed"
+             '''
+            }
+        }
+
+    stage ('Deploy with Docker Compose') {
+      steps {
+        sh ''' 
              docker compose up -d --build
            '''
             }

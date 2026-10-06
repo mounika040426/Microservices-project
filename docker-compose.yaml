@@ -12,6 +12,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - microservices-network
 
   order-service:
     build: ./order-service
@@ -25,6 +27,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - microservices-network
 
   user-service:
     build: ./user-service
@@ -38,6 +42,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - microservices-network
 
   gateway-service:
     build: ./gateway-service
@@ -59,3 +65,9 @@ services:
       - product-service
       - order-service
       - user-service
+    networks:
+      - microservices-network
+    
+networks:
+      microservices-network:
+        name: microservices-network
