@@ -1,5 +1,5 @@
+name: microservices-project
 services:
-
   product-service:
     build: ./product-service
     image: product-service:1.0
