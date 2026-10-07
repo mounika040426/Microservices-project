@@ -174,7 +174,7 @@ pipeline {
    stage('Deploy to Kubernetes with Helm') {
      steps {
        sh '''
-            echo "Deploying microservices to Kubernetes using Hel..."
+            echo "Deploying microservices to Kubernetes using Helm..."
      
             helm upgrade --install microservices-project \
               ./microservices-chart \
@@ -185,7 +185,7 @@ pipeline {
             echo "Helm deployment completed successfully!"
 
             kubectl get pods
-            kubectl get sevices
+            kubectl get services
           '''
          }
       }    
