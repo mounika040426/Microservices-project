@@ -104,10 +104,20 @@ pipeline {
             }
         }
 
-    stage ('Deploy with Docker Compose') {
+    stage ('Deploy New Version') {
       steps {
         sh ''' 
-             docker compose up -d --build
+             set -e
+
+             echo "Deploying version: ${IMAG_TAG}"
+   
+             echo "Pulling new Docker images..."
+
+             echo "Starting new version..."
+ 
+             IMAGE_TAG=${IMAGE_TAG} docker compose up -d --build
+
+             echo "Deployment command completed."
            '''
             }
         }
@@ -160,6 +170,25 @@ pipeline {
            '''
            }
         }
+
+   stage('Deploy to Kubernetes with Helm') {
+     steps {
+       sh '''
+            echo "Deploying microservices to Kubernetes using Hel..."
+     
+            helm upgrade --install microservices-project \
+              ./microservices-chart \
+              --set image.tag=${IMAGE_TAG} \
+              --wait \
+              --timeout 5m
+
+            echo "Helm deployment completed successfully!"
+
+            kubectl get pods
+            kubectl get sevices
+          '''
+         }
+      }    
    }
 
    post {

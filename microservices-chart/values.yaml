@@ -1,0 +1,47 @@
+image:
+  registry: docker.io
+  repository: mounikar04
+  tag: "11"
+  imagePullPolicy: Always
+
+services:
+  product:
+    name: product-service
+    repository: product-service
+    port: 8081
+    replicas: 2
+    hpa:
+      minReplicas: 2
+      maxReplicas: 5
+      cpu: 70
+
+  order:
+    name: order-service
+    repository: order-service
+    port: 8082
+    replicas: 2
+    hpa:
+      minReplicas: 2
+      maxReplicas: 5
+      cpu: 70
+
+  user:
+    name: user-service
+    repository: user-service
+    port: 8083
+    replicas: 2
+    hpa:
+      minReplicas: 2
+      maxReplicas: 5
+      cpu: 70
+
+  gateway:
+    name: gateway-service
+    repository: gateway-service
+    port: 8090
+    replicas: 2
+    hpa:
+      minReplicas: 2
+      maxReplicas: 5
+      cpu: 70
+
