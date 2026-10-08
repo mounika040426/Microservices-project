@@ -50,7 +50,38 @@ pipeline {
                   '''
                  }
               }
+    
+    stage('Sonarqube Code Analysis') {
+      steps {
+         withSonarQubeEnv('SonarQube') {
 
+            sh '''
+                set -e
+
+                echo "Running SonarQube analysis for product-service"
+                cd product-service
+                mvn sonar:sonar
+                cd .. 
+
+                echo "Running SonarQube analysis for order-service"
+                cd order-service
+                mvn sonar:sonar
+                cd ..
+
+                echo "Running SonarQube analysis for user-service"
+                cd user-service
+                mvn sonar:sonar
+                cd ..
+
+                echo "Running SonarQube analysis for gateway-service"
+                cd gateway-service
+                mvn sonar:sonar
+                cd ..
+
+                echo "SonarQube analysis completed successfully!"
+              '''
+             }
+          }
 
     stage('Docker Build') {
       steps {
@@ -62,6 +93,28 @@ pipeline {
            '''
             }
          }
+
+    stage('Trivy Security Scan') {
+      steps {
+         sh '''
+             set -e
+
+             echo "Scanning product-service image..."
+             trivy image --severity HIGH,CRITICAL --exit-code 0 ${PRODUCT_IMAGE}:${IMAGE_TAG}
+
+             echo "Scanning order-service image..."
+             trivy image --severity HIGH,CRITICAL --exit-code 0 ${ORDER_IMAGE}:${IMAGE_TAG}
+
+             echo "Scanning user-service image..."
+             trivy image --severity HIGH,CRITICAL --exit-code 0 ${USER_IMAGE}:${IMAGE_TAG}
+
+             echo "Scanning gateway-service image..."
+             trivy image --severity HIGH,CRITICAL --exit-code 0 ${GATEWAY_IMAGE}:{IMAGE_TAG}
+
+             echo "Trivy security scanning completed!"
+            '''
+           }
+       }
     
     stage('Docker login') {
       steps {
