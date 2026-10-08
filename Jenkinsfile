@@ -53,7 +53,7 @@ pipeline {
     
     stage('Sonarqube Code Analysis') {
       steps {
-         withSonarQubeEnv('SonarQube') {
+         withSonarQubeEnv('Sonarqube') {
 
             sh '''
                 set -e
