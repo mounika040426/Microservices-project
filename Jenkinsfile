@@ -53,37 +53,32 @@ pipeline {
     
     stage('Sonarqube Code Analysis') {
       steps {
-         withSonarQubeEnv('sonarqube') {
+        script {
+           def services =['product-service', 
+                          'order-service', 
+                          'user-service', 
+                          'gateway-service'
+                       ]
+                       for (def service : services) {
+                         echo "Running SonarQube analysis for ${services}"
 
-            sh '''
-                set -e
+                         // Remove metadata from previous analysis so the
+                         //Jenkins integration can identify the current report.
+                         sh '''
+                            find . -type f -name report-task.txt -delete
+                            '''
 
-                echo "Running SonarQube analysis for product-service"
-                cd product-service
-                mvn sonar:sonar
-                cd .. 
-
-                echo "Running SonarQube analysis for order-service"
-                cd order-service
-                mvn sonar:sonar
-                cd ..
-
-                echo "Running SonarQube analysis for user-service"
-                cd user-service
-                mvn sonar:sonar
-                cd ..
-
-                echo "Running SonarQube analysis for gateway-service"
-                cd gateway-service
-                mvn sonar:sonar
-                cd ..
-
-                echo "SonarQube analysis completed successfully!"
-              '''
+                        dir(service) {
+                          withSonarQubeEnv('sonarqube') {
+                            sh 'mvn sonar:sonar'
              }
           }
+        }
+        echo 'SonarQube analysis completed!'
+        }
       }
-
+    }
+      
     stage('Docker Build') {
       steps {
         sh '''
@@ -110,7 +105,7 @@ pipeline {
              trivy image --severity HIGH,CRITICAL --exit-code 0 ${USER_IMAGE}:${IMAGE_TAG}
 
              echo "Scanning gateway-service image..."
-             trivy image --severity HIGH,CRITICAL --exit-code 0 ${GATEWAY_IMAGE}:{IMAGE_TAG}
+             trivy image --severity HIGH,CRITICAL --exit-code 0 ${GATEWAY_IMAGE}:${IMAGE_TAG}
 
              echo "Trivy security scanning completed!"
             '''
@@ -149,7 +144,7 @@ pipeline {
 
              docker compose down --remove-orphans || true
        
-             docker rm -f microservices-project-gateway-service-1 microservices-project-product-service-1 microservices-project-order-service-1 microservices-project-user-service-1
+             docker rm -f microservices-project-gateway-service-1 microservices-project-product-service-1 microservices-project-order-service-1 microservices-project-user-service-1 || true
 
              docker network rm microservices-network || true
 
@@ -163,7 +158,7 @@ pipeline {
         sh ''' 
              set -e
 
-             echo "Deploying version: ${IMAG_TAG}"
+             echo "Deploying version: ${IMAGE_TAG}"
    
              echo "Pulling new Docker images..."
 
